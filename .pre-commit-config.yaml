@@ -1,0 +1,60 @@
+# CareerRadar AI · Pre-Commit Hook Yapılandırması
+# Kurulum (1 kez):
+#   pip install pre-commit
+#   pre-commit install   (git commit anında otomatik çalışır)
+# Manuel:
+#   pre-commit run --all-files
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.2
+    hooks:
+      # 1) Lint (E: syntax, F: import, W: stil uyarıları)
+      - id: ruff
+        name: ruff lint (apps/api)
+        args: ["--select=E,F,W", "--fix", "--show-fixes"]
+        files: ^apps/api/(app|tests)/.*\.py$
+        types: [python]
+        language_version: python3
+      # 2) Format (black benzeri, çakışmasın diye sadece import/boşluk)
+      - id: ruff-format
+        name: ruff format (apps/api)
+        args: ["--line-length=88"]
+        files: ^apps/api/(app|tests)/.*\.py$
+        types: [python]
+        language_version: python3
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.29.0
+    hooks:
+      - id: mypy
+        name: mypy apps/api
+        args: [
+          "apps/api/app",
+          "--ignore-missing-imports",
+          "--no-error-summary",
+          "--disable-error-code=import-untyped",
+          "--disable-error-code=union-attr",
+        ]
+        additional_dependencies: [
+          "pydantic>=2.5", "httpx>=0.27", "sqlalchemy>=2.0",
+          "fastapi>=0.110", "streamlit>=1.32",
+        ]
+        language_version: python3
+        pass_filenames: false
+
+  # Standart hooks: whitespace + trailing + EOF
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: trailing whitespace
+      - id: end-of-file-fixer
+        name: EOF newline fix
+      - id: check-yaml
+        name: YAML/JSON lint
+        args: ["--unsafe", "--allow-multiple-documents"]
+      - id: check-merge-conflict
+        name: merge conflict marker kontrolü
+      - id: check-added-large-files
+        name: 500KB büyük dosya uyarısı
+        args: ["--maxkb=500"]

@@ -1,0 +1,1 @@
+"""CareerRadar AI API uygulaması."""

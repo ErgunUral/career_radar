@@ -1,0 +1,25 @@
+{
+  "cookies": [
+    {
+      "name": "_pxhd",
+      "value": "9c898002770d9d95b9d3da91e9984995f0f5aef37225e2ab3ef02026e7c407d1:21a8f3d6-9358-11f1-a6e0-b816e116a118",
+      "domain": ".kariyer.net",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "Knet_Cookie_2Hrs-HTTPX",
+      "value": "4bb3a3d8163a38dae6ddd34357a284441df42ffc11e47b7e533e10aeede4e616e78db0f5",
+      "domain": ".kariyer.net",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}

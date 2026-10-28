@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  matching-api:
+    build:
+      context: ../../
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "8000:8000"

@@ -1,0 +1,94 @@
+# CareerRadar AI · docker-compose.yml
+#   Kullanım (PROJE KÖKÜNDE):
+#     docker compose build
+#     docker compose up -d
+#     →  http://localhost:8000/docs  (API + Swagger)
+#     →  http://localhost:8501       (Streamlit Dashboard)
+#   Durdurma: docker compose down  (-v kalıcı DB'yi siler)
+#
+# Opsiyonel ENV (email gönderimi için):
+#   SMTP_HOST=smtp.gmail.com
+#   SMTP_PORT=465
+#   SMTP_USER=senin@email.com
+#   SMTP_PASS=uygulama-sifren
+#   SMTP_FROM="CareerRadar AI <senin@email.com>"
+
+name: careerradar-ai
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: careerradar-api
+    restart: unless-stopped
+    working_dir: /app/apps/api
+    command: >
+      python3 -m uvicorn app.main:app
+      --host 0.0.0.0 --port 8000
+      --log-level info --proxy-headers
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=Europe/Istanbul
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-0}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - SMTP_FROM=${SMTP_FROM:-}
+    volumes:
+      - careerradar-db:/app/apps/api
+      - careerradar-storage:/app/apps/api/app/storage
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - careerradar-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: careerradar-frontend
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+    working_dir: /app/apps/frontend
+    command: >
+      python3 -m streamlit run streamlit_app.py
+      --server.address 0.0.0.0
+      --server.port 8501
+      --server.headless true
+      --server.runOnSave false
+      --server.enableCORS false
+      --browser.gatherUsageStats false
+      --global.developmentMode false
+    ports:
+      - "8501:8501"
+    environment:
+      - TZ=Europe/Istanbul
+    volumes:
+      - careerradar-db:/app/apps/api:ro         # Frontend DB'ye sadece OKU (read-only)
+      - careerradar-storage:/app/apps/api/app/storage:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8501/_stcore/health"]
+      interval: 30s
+      timeout: 6s
+      retries: 3
+      start_period: 25s
+    networks:
+      - careerradar-net
+
+volumes:
+  careerradar-db:           # SQLite DB (kalıcı, container silinse bile korunur)
+    name: careerradar-db
+  careerradar-storage:      # Playwright storage_state (cookie)
+    name: careerradar-storage
+
+networks:
+  careerradar-net:
+    driver: bridge
+    name: careerradar-net

@@ -1,0 +1,19 @@
+# Build / derleme çıktıları (repoya girmez)
+node_modules/
+.next/
+out/
+dist/
+build/
+*.egg-info/
+
+# Python bytecode & test/type-check cache
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# İşletim sistemi / editör
+.DS_Store
